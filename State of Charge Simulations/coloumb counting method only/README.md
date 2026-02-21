@@ -9,3 +9,5 @@ Timing error= random from -0.2sec to +0.2 sec
 ## printed output
 Maximum SOC error = 3.4119816407934422
 Average SOC error = 1.5597676367958881
+
+## Note- since we are using np.rand() -> each time the printed output and Graph(in result folder) will vary each time we run the code.
