@@ -17,3 +17,6 @@ This demonstrates how load conditions affect voltage-based SOC estimation.
 The SOC–Voltage relationship is nonlinear, with a relatively flat region in the middle SOC range.
 In this region, large SOC changes produce very small voltage variations.
 This limits the reliability of voltage-based SOC estimation under practical operating conditions.
+
+## Polarisation voltage vs Time
+Polarization voltage increases exponentially due to the RC time constant representing electrochemical delay. It rises rapidly at first and then stabilizes when capacitor charging stops and resistor current equals the load current.
