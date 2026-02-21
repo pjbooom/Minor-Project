@@ -8,6 +8,10 @@ SOC_O = 100.0             # starting SOC (%)
 I = 1.0                   # discharge current (A)
 dt = 5.0                  # timestep = 5 seconds
 total_time = 3600         # simulate 1 hour
+R1=0.5                    # polarisation resistance
+C1=200                    # polarisation capacitance
+tau=R1*C1                 
+a=np.exp(-dt/tau)
 # getting that OCV table
 content = np.loadtxt('/content/lithium.txt')
 SOC_table = content[:,0]
@@ -18,9 +22,11 @@ true_soc_list = []
 est_soc_list = []
 voltage_list = []
 OCV_list=[]
+Vrc_list=[]
 # assumption before robot starts to draw current
 true_SOC = SOC_O
 time = 0
+Vrc=0          #We start with battery relaxed, no polarisation initially
 # looping each interval of time(5 seconds)
 while true_SOC > 0 and time <= total_time:
     # voltage estimation from true SOC (THIS IS FOR BATTERY AND THIS IS TO SIMULATE BATTERY giving volatge that robot measures, but take care that in real life we only get that 'V' variable when robot sense, all this below is for simualtion like how battery thinks so we can simulate it. here also robot doesnt know all this TRUE SOC, we use TRUE SOC to get error here from robot SOC which gets it from variable 'V' t.)
@@ -31,7 +37,7 @@ while true_SOC > 0 and time <= total_time:
         OCV = voltage_table[0]
     elif true_SOC <= SOC_table[-1]:
         OCV = voltage_table[-1]
-    #we use linear interpolation here cause in table we have 60% and 65% but not inbetween so we use this formula to get inbetween. THIS IS NOT ESTIMATION, its just pure math.    
+    #we use linear interpolation here cause in table we have 60% and 65% but not inbetween so we use this formula to get inbetween. THIS IS NOT ESTIMATION, its just pure math.
     else:
         for i in range(len(SOC_table)-1):
             if true_SOC < SOC_table[i] and true_SOC > SOC_table[i+1]:
@@ -40,17 +46,19 @@ while true_SOC > 0 and time <= total_time:
                 measure_SOC = measure_SOC_gap / gap_SOC
                 voltage_gap = voltage_table[i] - voltage_table[i+1]
                 OCV = voltage_table[i+1] + (measure_SOC * voltage_gap)
-                break  
-    OCV_list.append(OCV)            
+                break
+    OCV_list.append(OCV)
+    Vrc=R1*I*(1-a)+Vrc*a          #polarisation voltage calculation
+    Vrc_list.append(Vrc) 
     # putting internal resistance volatge drop here to simulate real battery.
-    V = OCV - I * R_int
+    V = OCV - I * R_int-Vrc    #Vrc is polarisation drop in voltage
     # SOC estimation from voltage V (thisd what we do in real life, robot detects V from battery and estimates SOC and we check how accurate this SOC is from TRUE SOC thats simualtion. and we try to reduce it later)
-    #edge handling 
+    #edge handling
     if V >= voltage_table[0]:
         SOC = SOC_table[0]
     elif V <= voltage_table[-1]:
         SOC = SOC_table[-1]
-    #Linear interpolation for robot to get SOC from V(reverse of wt we did before)    
+    #Linear interpolation for robot to get SOC from V(reverse of wt we did before)
     else:
         for i in range(len(voltage_table)-1):
             if V < voltage_table[i] and V > voltage_table[i+1]:
@@ -106,4 +114,11 @@ plt.plot(SOC_table,voltage_table)
 plt.xlabel("SOC(%)")
 plt.ylabel("Voltage(V)")
 plt.title("SOC vs Voltage (OCV Curve)")
+plt.show()
+# Vrc vs time curve (polarisation over time)
+plt.figure()
+plt.plot(time_list,Vrc_list)
+plt.xlabel("time(sec)")
+plt.ylabel("polarisation voltage(Vrc)")
+plt.title("Vrc vs time")
 plt.show()
