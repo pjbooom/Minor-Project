@@ -11,3 +11,5 @@ Maximum SOC error = 3.4119816407934422
 Average SOC error = 1.5597676367958881
 
 ## Note- since we are using np.rand() -> each time the printed output and Graph(in result folder) will vary each time we run the code.
+
+## for varying load current, i simulated realistic current load a motor driver could ask where I = 1 + 0.8*np.sin(time/300)    (for demanding 1A)
