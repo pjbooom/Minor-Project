@@ -14,6 +14,7 @@ SOC_v is obtained using reverse interpolation from measured terminal voltage whi
 A behaviour aware blend variable controls confidence in voltage estimation. Motor operation forces blend to zero while rest periods allow exponential confidence recovery. Solar charging accelerates recovery while cooldown and wait states recover more slowly.
 Final hybrid estimation:
 SOC_est = (1 − blend) × SOC_cc + blend × SOC_v.
+
 --- 
 
 ## Graph Explanation
